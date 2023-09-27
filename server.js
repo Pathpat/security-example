@@ -41,7 +41,7 @@ passport.deserializeUser((id, done) =>{
     // User.findById(id).then(user =>{
     //     done(null, user);
     // })
-    done(null, id)
+    done(null, id);
 });
 
 const app = express();
@@ -58,7 +58,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 function checkLoggedIn(req, res, next) {
-    const isLoggedIn = true;
+    console.log('Current user is:',req.user);
+    const isLoggedIn = req.isAuthenticated() && req.user;
     if (!isLoggedIn) {
         return res.status(401).json({
             error: 'You must log in!',
@@ -82,7 +83,10 @@ app.get('/auth/google/callback',
         console.log('Google called us back.')
     });
 
-app.get('/auth/logout', (req, res) => {})
+app.get('/auth/logout', (req, res) => {
+    req.logout(); //Remove req.user and clears any logged in session.
+    return res.redirect('/');
+})
 
 app.get('/secret', checkLoggedIn, (req,res) =>{
     return res.send('Your personal secret value is 42');
